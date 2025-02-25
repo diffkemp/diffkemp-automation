@@ -1,0 +1,4 @@
+[submodule "backend/comparison_container/files/version_comparison/version-analysis"]
+	path = backend/comparison_container/files/version_comparison/version-analysis
+	url = https://github.com/PLukas2018/diffkemp-analysis
+	branch = build-options

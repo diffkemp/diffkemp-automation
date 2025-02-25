@@ -1,0 +1,71 @@
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "diffkemp-automation"
+description = "Backend for automatic running of DiffKemp on projects."
+authors = [
+  { name = "Lukas Petr", email = "lukas.petr.dev@gmail.com" },
+]
+version = "0.0.1"
+requires-python = ">= 3.12"
+dependencies = [
+    "appdirs==1.4.4",
+    "flask==3.1.0",
+    "packaging==24.2",
+    "requests==2.32.3",
+    "pyyaml==6.0.2",
+    "GitPython==3.1.44",
+    "mypy==1.19.1"
+]
+
+[tool.poetry]
+packages = [
+    { include = "automation" }
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8-pyproject==1.2.4",
+    "flake8==7.1.2",
+    "flake8-isort==6.1.2",
+    "flake8-quotes==3.4.0",
+    "pytest==8.3.5",
+    "types-appdirs==1.4.3.5",
+    "types-requests==2.32.4.20250913",
+    "types-PyYAML==6.0.12.20250915",
+]
+
+
+[project.scripts]
+# Command checks if new releases of projects are available and compares them.
+diffkemp-automation-compare = "automation.comparator:compare_new"
+
+[tool.flake8]
+extend_exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "comparison_container/",
+]
+import-order-style = "google"
+inline-quotes = "double"
+
+# Imports sorting
+[tool.isort]
+src_paths = [
+    "automation",
+]
+extend_skip = [
+    "comparison_container",
+]
+
+# Python typing check
+[tool.mypy]
+exclude = [
+    "^comparison_container/",
+]
+python_version = "3.12"
+disallow_untyped_defs = true
+check_untyped_defs = true

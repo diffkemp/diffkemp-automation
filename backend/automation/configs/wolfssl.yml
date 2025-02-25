@@ -1,0 +1,115 @@
+type: versions
+name: WolfSSL
+git: https://github.com/wolfSSL/wolfssl.git
+release-monitor-id: 21631
+build-options:
+  - --no-opt-override
+clang-append:
+  - -g
+  - -O2
+config-commands:
+  - ./autogen.sh
+  - ./configure --enable-all
+  - sed -i 's/-Werror//' Makefile
+functions:
+  - Base64_Encode
+  - Base64_Decode
+  - Base16_Encode
+  - Base16_Decode
+  - wc_SignatureVerify
+  - wc_SignatureGenerate
+  - wc_Des_CbcEncrypt
+  - wc_Des_CbcDecrypt
+  - wc_Des_EcbEncrypt
+  - wc_Des3_CbcEncrypt
+  - wc_Des3_CbcDecrypt
+  - wc_Des3_EcbEncrypt
+  - wc_AesCbcEncrypt
+  - wc_AesCbcDecrypt
+  - wc_AesCtrEncrypt
+  - wc_AesEncryptDirect
+  - wc_AesDecryptDirect
+  - wc_AesGcmEncrypt
+  - wc_AesGcmDecrypt
+  - wc_GmacUpdate
+  - wc_AesCcmEncrypt
+  - wc_AesCcmDecrypt
+  - wc_AesXtsEncrypt
+  - wc_AesXtsDecrypt
+  - wc_AesXtsEncryptSector
+  - wc_AesXtsDecryptSector
+  - wc_AesCfbEncrypt
+  - wc_AesCfbDecrypt
+  - wc_Arc4Process
+  - wc_Blake2bUpdate
+  - wc_Blake2bFinal
+  - wc_CamelliaEncryptDirect
+  - wc_CamelliaDecryptDirect
+  - wc_CamelliaCbcEncrypt
+  - wc_CamelliaCbcDecrypt
+  - wc_Chacha_Process
+  - wc_ChaCha20Poly1305_Encrypt
+  - wc_ChaCha20Poly1305_Decrypt
+  - wc_CmacUpdate
+  - wc_CmacFinal
+  - wc_AesCmacGenerate
+  - wc_AesCmacVerify
+  - wc_curve25519_shared_secret
+  - wc_curve448_shared_secret
+  - wc_DsaSign
+  - wc_DsaVerify
+  - wc_DhAgree
+  - wc_ecc_shared_secret
+  - wc_ecc_sign_hash
+  - wc_ecc_verify_hash
+  - wc_ecc_encrypt
+  - wc_ecc_decrypt
+  - wc_ed25519_sign_msg
+  - wc_ed25519ctx_sign_msg
+  - wc_ed25519ph_sign_hash
+  - wc_ed25519ph_sign_msg
+  - wc_ed25519_verify_msg
+  - wc_ed25519ctx_verify_msg
+  - wc_ed25519ph_verify_hash
+  - wc_ed25519ph_verify_msg
+  - wc_ed448_sign_msg
+  - wc_ed448ph_sign_hash
+  - wc_ed448ph_sign_msg
+  - wc_ed448_verify_msg
+  - wc_ed448ph_verify_hash
+  - wc_ed448ph_verify_msg
+  - wc_HmacUpdate
+  - wc_HmacFinal
+  - wc_HKDF
+  - wc_Md2Hash
+  - wc_Md2Update
+  - wc_Md2Final
+  - wc_Md4Update
+  - wc_Md4Final
+  - wc_Md5Update
+  - wc_Md5Final
+  - wc_Md5Hash
+  - wc_PBKDF1
+  - wc_PBKDF2
+  - wc_PKCS12_PBKDF
+  - wc_Poly1305Update
+  - wc_Poly1305Final
+  - wc_Poly1305_MAC
+  - wc_RipeMdUpdate
+  - wc_RipeMdFinal
+  - wc_RsaPublicEncrypt
+  - wc_RsaPrivateDecrypt
+  - wc_RsaSSL_Sign
+  - wc_RsaSSL_Verify
+  - wc_RsaPSS_Sign
+  - wc_RsaPSS_Verify
+  - wc_ShaHash
+  - wc_Sha224Hash
+  - wc_Sha256Hash
+  - wc_Sha384Hash
+  - wc_Sha512Hash
+  - wc_Sha3_224Hash
+  - wc_Sha3_256Hash
+  - wc_Sha3_384Hash
+  - wc_Sha3_512Hash
+  - wc_Shake256Hash

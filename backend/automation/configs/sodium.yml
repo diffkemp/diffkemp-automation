@@ -1,0 +1,92 @@
+type: versions
+name: Sodium
+git: https://github.com/jedisct1/libsodium.git
+release-monitor-id: 1728
+build-options:
+  - --no-opt-override
+config-commands:
+  # A simple patch to fix the build for versions 1.0.12 and lower
+  - sed -i 's/typedef CRYPTO_ALIGN(64) struct/typedef struct CRYPTO_ALIGN(64)/' src/libsodium/include/sodium/crypto_generichash_blake2b.h
+  - ./autogen.sh
+  - ./configure
+clang-append:
+  - -g
+  - -O2
+functions:
+  - sodium_bin2hex
+  - sodium_hex2bin
+  - sodium_bin2base64
+  - sodium_base642bin
+  - sodium_pad
+  - sodium_unpad
+  - crypto_secretbox_easy
+  - crypto_secretbox_open_easy
+  - crypto_secretbox_detached
+  - crypto_secretbox_open_detached
+  - crypto_secretstream_xchacha20poly1305_init_push
+  - crypto_secretstream_xchacha20poly1305_push
+  - crypto_secretstream_xchacha20poly1305_init_pull
+  - crypto_secretstream_xchacha20poly1305_pull
+  - crypto_auth
+  - crypto_auth_verify
+  - crypto_aead_chacha20poly1305_encrypt
+  - crypto_aead_chacha20poly1305_decrypt
+  - crypto_aead_chacha20poly1305_encrypt_detached
+  - crypto_aead_chacha20poly1305_decrypt_detached
+  - crypto_aead_chacha20poly1305_ietf_encrypt
+  - crypto_aead_chacha20poly1305_ietf_decrypt
+  - crypto_aead_chacha20poly1305_ietf_encrypt_detached
+  - crypto_aead_chacha20poly1305_ietf_decrypt_detached
+  - crypto_aead_xchacha20poly1305_ietf_encrypt
+  - crypto_aead_xchacha20poly1305_ietf_decrypt
+  - crypto_aead_xchacha20poly1305_ietf_encrypt_detached
+  - crypto_aead_xchacha20poly1305_ietf_decrypt_detached
+  - crypto_aead_aes256gcm_encrypt
+  - crypto_aead_aes256gcm_decrypt
+  - crypto_aead_aes256gcm_encrypt_detached
+  - crypto_aead_aes256gcm_decrypt_detached
+  - crypto_aead_aes256gcm_encrypt_afternm
+  - crypto_aead_aes256gcm_decrypt_afternm
+  - crypto_aead_aes256gcm_encrypt_detached_afternm
+  - crypto_aead_aes256gcm_decrypt_detached_afternm
+  - crypto_box_easy
+  - crypto_box_open_easy
+  - crypto_box_detached
+  - crypto_box_open_detached
+  - crypto_box_beforenm
+  - crypto_box_easy_afternm
+  - crypto_box_open_easy_afternm
+  - crypto_box_detached_afternm
+  - crypto_box_open_detached_afternm
+  - crypto_sign
+  - crypto_sign_open
+  - crypto_sign_detached
+  - crypto_sign_verify_detached
+  - crypto_box_seal
+  - crypto_box_seal_open
+  - crypto_generichash
+  - crypto_shorthash
+  - crypto_pwhash
+  - crypto_pwhash_str
+  - crypto_pwhash_str_verify
+  - crypto_kx_client_session_keys
+  - crypto_kx_server_session_keys
+  - crypto_hash_sha256
+  - crypto_hash_sha512
+  - crypto_auth_hmacsha256
+  - crypto_auth_hmacsha256_verify
+  - crypto_auth_hmacsha512
+  - crypto_auth_hmacsha512_verify
+  - crypto_auth_hmacsha512256
+  - crypto_auth_hmacsha512256_verify
+  - crypto_pwhash_scryptsalsa208sha256
+  - crypto_pwhash_scryptsalsa208sha256_str
+  - crypto_onetimeauth
+  - crypto_onetimeauth_verify
+  - crypto_stream_chacha20
+  - crypto_stream_chacha20_ietf
+  - crypto_stream_xchacha20
+  - crypto_stream_salsa20
+  - crypto_stream_salsa2012
+  - crypto_stream_salsa208
+  - crypto_stream

@@ -1,0 +1,40 @@
+name: CI
+on:
+- push
+- pull_request
+
+jobs:
+  backend-code-check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo apt update
+          sudo apt install virtualenv
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          virtualenv -p python3 .venv
+          source .venv/bin/activate
+          pip install -e .[dev]
+        working-directory: ./backend
+      - name: Check coding style
+        run: |
+          source .venv/bin/activate
+          flake8
+        working-directory: ./backend
+      - name: Check import order
+        run: |
+          source .venv/bin/activate
+          isort .
+        working-directory: ./backend
+      - name: Check type hints
+        run: |
+          source .venv/bin/activate
+          mypy .
+        working-directory: ./backend
+

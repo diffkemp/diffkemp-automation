@@ -38,3 +38,26 @@ jobs:
           mypy .
         working-directory: ./backend
 
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo apt update
+          sudo apt install virtualenv
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          virtualenv -p python3 .venv
+          source .venv/bin/activate
+          pip install -e .[dev]
+        working-directory: ./backend
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest tests/
+        working-directory: ./backend

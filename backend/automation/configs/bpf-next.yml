@@ -1,0 +1,6 @@
+type: commits
+name: bpf-next
+depth: 100
+git: https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git
+commit-prefixes:
+  - bpf

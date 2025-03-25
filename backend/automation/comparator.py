@@ -6,6 +6,7 @@ Comparator of projects.
 
 import argparse
 import logging
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -14,8 +15,9 @@ from typing import Any, List, Tuple
 import yaml
 from git import Optional
 
-from .models.projects import ProjectsManager, ProjectVersions
+from .models.projects import ProjectCommits, ProjectsManager, ProjectVersions
 from .models.results import Results, ResultsVersions
+from .models.results.commits import ResultsCommits
 from .utils import REPOS_DIR, VIEW_RESULTS_DIR
 
 logger = logging.getLogger(__name__)
@@ -283,6 +285,103 @@ class Comparator:
         # Updating total results
         results.save()
 
+    def compare_projects_commits(
+        self,
+        projects_commits: list[tuple[ProjectCommits, list[str]]]
+    ) -> None:
+        if self.container_id is None:
+            return
+
+        for project, commits in projects_commits:
+            self._compare_project_commits(project, commits)
+        # Create directories for viewing changes
+        logger.debug("Creating view directories")
+        self.run_cmd(["/runner/commit_comparison/build_view_files.sh"],
+                     "Creating directories for viewing changes")
+        logger.debug("View directories are created")
+        self._update_commit_results(projects_commits)
+
+    def _compare_project_commits(
+        self,
+        project: ProjectCommits,
+        commits: list[str]
+    ) -> None:
+        """Compares one project and multiple commits in the container."""
+        if self.container_id is None:
+            return
+
+        logging.debug(f"Comparing ({', '.join(commits)}) in {project.name}")
+        # Save commits to container.
+        _, tmp_filename = tempfile.mkstemp(text=True)
+        with open(tmp_filename, "w", encoding="utf8") as file:
+            print("\n".join(commits), file=file)
+        subprocess.check_call([
+            "podman", "cp", tmp_filename, f"{self.container_id}:/commits.txt"
+        ])
+        os.remove(tmp_filename)
+        # Compare commits
+        self.run_cmd(
+            ["/runner/commit_comparison/run_cmp.sh", project.config_name],
+            "Comparing projects commits",
+        )
+
+    def _update_commit_results(
+        self,
+        projects_commits: list[tuple[ProjectCommits, list[str]]]
+    ) -> None:
+        """Save comparison results from container to disk."""
+        if self.diffkemp_sha is None:
+            return
+
+        logger.debug("Saving results")
+
+        results = Results()
+
+        # For each project:
+        # - saves view directories to disk and
+        # - updates results with results of the version
+        with tempfile.TemporaryDirectory() as tmp_dirname:
+            result_file = Path(tmp_dirname) / "results.yml"
+
+            for project, commits in projects_commits:
+                output_dir = (
+                    VIEW_RESULTS_DIR / self.diffkemp_sha / project.config_name
+                )
+
+                output_dir.mkdir(parents=True, exist_ok=True)
+                # Copy view files
+                # The view directories will not exist if all functions were
+                # evaluated as equal - therefore using try block.
+                try:
+                    subprocess.check_call([
+                        "podman", "cp",
+                        f"{self.container_id}"
+                        f":/commit-view/{project.config_name}/.",
+                        output_dir
+                    ], stdout=subprocess.DEVNULL)
+                except subprocess.CalledProcessError:
+                    logger.debug(
+                        f"For {project.name} were not created view directories"
+                    )
+                # Copy results file
+                subprocess.check_call([
+                    "podman", "cp",
+                    f"{self.container_id}:"
+                    f"/commit-output/{project.config_name}/results.yml",
+                    result_file,
+                ], stdout=subprocess.DEVNULL)
+                # Load results
+                results.extend(
+                    ResultsCommits.from_analyzer_results(
+                        name=project.name,
+                        config_file_name=project.config_name,
+                        diffkemp_sha=self.diffkemp_sha,
+                        path=result_file)
+                )
+                project.set_latest_compared_commit(commits[-1])
+        # Updating total results
+        results.save()
+
     def __del__(self) -> None:
         self.cleanup()
 
@@ -334,16 +433,23 @@ def compare_new() -> None:
         projects=args.projects,
         init_amount=args.init_amount,
     )
+    projects_commits = ProjectsManager.get_projects_commits_for_comparison(
+        projects=args.projects,
+        init_amount=args.init_amount,
+    )
 
-    if len(projects_tags) == 0:
+    if len(projects_tags) == 0 and len(projects_commits) == 0:
         logger.info("No new projects to compare")
         return
 
     logger.info(f"Found {len(projects_tags)} projects with new releases")
+    logger.info(f"Found {len(projects_commits)} projects with new commits")
 
+    logger.info(f"Found {len(projects_tags)} projects with new releases")
     try:
         with Comparator() as comparator:
             comparator.compare_projects_tags(projects_tags)
+            comparator.compare_projects_commits(projects_commits)
     except ComparatorError as e:
         logger.error(f"Comparison failed: {e}")
     except Exception as e:

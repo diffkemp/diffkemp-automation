@@ -1,0 +1,169 @@
+"""
+Results of comparison of project that compare commits.
+
+:author: Lukas Petr
+"""
+from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import yaml
+
+from automation.models.projects.commits import ProjectCommits
+
+from .function import FunctionResult
+from .result import ResultBase, ResultsBase
+from .types import ComparisonStatus, DiffKempResultType
+
+
+class ResultCommit(ResultBase[ProjectCommits]):
+    """Results of comparison for project's commit."""
+    def __init__(
+        self,
+        commit: str,
+        all_diffs_matched: bool = False,
+        *,
+        name: str,
+        config_file_name: str,
+        diffkemp_sha: str,
+        equal: int = 0,
+        non_equal: int = 0,
+        unknown: int = 0,
+        error: int = 0,
+        no_differing: Optional[int] = None,
+        date: Optional[datetime] = None,
+        functions: Optional[Dict[str, FunctionResult]] = None,
+        comparison_status: ComparisonStatus = ComparisonStatus.SUCCESS,
+    ):
+        """
+        :param commit: For which commit are the results.
+        :param all_diffs_matched: True if all diffs added in the commit were
+            matched to functions (was located in which function the diff
+            belongs to).
+        """
+        self.commit = commit
+        self.all_diffs_matched = all_diffs_matched
+        super().__init__(
+            name=name,
+            config_file_name=config_file_name,
+            diffkemp_sha=diffkemp_sha,
+            equal=equal,
+            non_equal=non_equal,
+            unknown=unknown,
+            error=error,
+            no_differing=no_differing,
+            date=date,
+            functions=functions,
+            comparison_status=comparison_status,
+        )
+
+    @classmethod
+    def from_analyzer_results(
+        cls,
+        name: str,
+        config_file_name: str,
+        commit: str,
+        diffkemp_sha: str,
+        result: Dict[str, Any],
+    ) -> "ResultCommit":
+        # Failed comparison map
+        failed_verdict_map = {
+            "FAIL": ComparisonStatus.FAIL,
+            "NO-FUNCTIONS": ComparisonStatus.NO_FUNCTIONS,
+        }
+        verdict = result["verdict"]
+        if verdict in failed_verdict_map.keys():
+            return cls(name=name,
+                       config_file_name=config_file_name,
+                       commit=commit,
+                       diffkemp_sha=diffkemp_sha,
+                       comparison_status=failed_verdict_map[verdict])
+
+        functions = {}
+        result_map = {
+            "eq": DiffKempResultType.EQUAL,
+            "neq": DiffKempResultType.NON_EQUAL,
+            "unk": DiffKempResultType.UNKNOWN,
+            "err": DiffKempResultType.ERROR,
+        }
+        for function, fun_result in result["functions"].items():
+            functions[function] = FunctionResult(
+                name=function, diffkemp_result=result_map[fun_result])
+        return cls(
+            name=name,
+            config_file_name=config_file_name,
+            commit=commit,
+            diffkemp_sha=diffkemp_sha,
+            equal=result["eq"],
+            non_equal=result["neq"],
+            unknown=result["unk"],
+            error=result["err"],
+            functions=functions,
+            all_diffs_matched=result["confident"],
+        )
+
+    def get_key(self) -> str:
+        return self.commit
+
+    def get_relative_viewer_path(self) -> Path:
+        return Path(
+            self.diffkemp_sha, self.config_file_name, self.commit)
+
+    def to_yaml(self) -> dict:
+        result_yaml = super().to_yaml()
+        result_yaml.update({
+            "commit": self.commit,
+            "all_diffs_matched": self.all_diffs_matched,
+            "type": "commit"
+        })
+        return result_yaml
+
+    @classmethod
+    def from_yaml(cls, result: dict) -> "ResultCommit":
+        kwargs = super()._parse_yaml_base(result)
+        return cls(
+            commit=result["commit"],
+            all_diffs_matched=result["all_diffs_matched"],
+            **kwargs
+        )
+
+
+class ResultsCommits(ResultsBase[ResultCommit, ProjectCommits]):
+    """
+    Collection of commit comparison results.
+
+    Stores and manages multiple ResultCommit instances.
+    """
+
+    def __init__(
+        self,
+        results: Optional[Dict[str, Dict[str, List[ResultCommit]]]] = None,
+    ):
+        super().__init__(results)
+
+    @classmethod
+    def from_analyzer_results(
+        cls,
+        name: str,
+        config_file_name: str,
+        diffkemp_sha: str,
+        path: Path,
+    ) -> "ResultsCommits":
+        """Loads results from analyser results file."""
+        with path.open("r") as file:
+            yaml_results = yaml.safe_load(file)
+
+        all_results: dict = defaultdict(lambda: defaultdict(list))
+        results = all_results[config_file_name]
+
+        for commit, result in yaml_results.items():
+            commit_result = ResultCommit.from_analyzer_results(
+                name=name,
+                config_file_name=config_file_name,
+                commit=commit,
+                diffkemp_sha=diffkemp_sha,
+                result=result
+            )
+            results[commit].append(commit_result)
+        return cls(dict(all_results))

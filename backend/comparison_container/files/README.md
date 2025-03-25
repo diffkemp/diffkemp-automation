@@ -16,4 +16,9 @@ This directory contains files that are copied to the comparison container to a `
     |                         for individual projects' versions.
     ├── version-analysis - A sub-project for analysis of project's versions.
     └── run_cmp.sh - Script launches the comparison.
+└── commit_comparison - Scripts for comparison of project commits.
+    ├── build_view_files.sh - Creates visualisation of found differences
+    |                         for individual projects' commits.
+    ├── commit-analysis - A sub-project for analysis of project's commits.
+    └── run_cmp.sh - Script launches the comparison.
 ```

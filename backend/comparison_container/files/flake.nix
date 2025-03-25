@@ -17,6 +17,8 @@
           diffkemp.devShells.${system}.default
         ];
         buildInputs = with pkgs; [
+          # commit-analysis dependency
+          python312
           util-linux
           # diffkemp-analysis dependency
           python3Packages.gitpython

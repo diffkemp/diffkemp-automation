@@ -11,11 +11,12 @@ import yaml
 
 from automation.utils import RESULTS_PATH
 
+from .commits import ResultCommit, ResultsCommits
 from .versions import ResultsVersions, ResultVersion
 
 logger = logging.getLogger(__name__)
 
-ResultsSubTypes = Union[ResultsVersions]
+ResultsSubTypes = Union[ResultsVersions, ResultsCommits]
 
 
 class Results:
@@ -27,6 +28,7 @@ class Results:
 
     def __init__(self) -> None:
         self.versions = ResultsVersions()
+        self.commits = ResultsCommits()
 
         if not RESULTS_PATH.exists():
             return
@@ -46,11 +48,15 @@ class Results:
         for result in results:
             if result["type"] == "version":
                 self.versions.add(ResultVersion.from_yaml(result))
+            elif result["type"] == "commit":
+                self.commits.add(ResultCommit.from_yaml(result))
 
     def extend(self, results: ResultsSubTypes) -> None:
         """Add multiple results to this instance."""
         if isinstance(results, ResultsVersions):
             self.versions.extend(results)
+        elif isinstance(results, ResultsCommits):
+            self.commits.extend(results)
         else:
             raise TypeError(f"Unknown results class: {type(results)}")
 
@@ -58,9 +64,16 @@ class Results:
         """Returns results of projects that compared versions."""
         return self.versions
 
+    def get_commit_results(self) -> ResultsCommits:
+        """Returns results of projects that compared commits."""
+        return self.commits
+
     def to_yaml(self) -> List[Dict[str, Any]]:
         """Serialize the results to YAML format."""
-        return self.versions.to_yaml()
+        results = []
+        results.extend(self.versions.to_yaml())
+        results.extend(self.commits.to_yaml())
+        return results
 
     def save(self) -> None:
         """Saves the results to disk."""

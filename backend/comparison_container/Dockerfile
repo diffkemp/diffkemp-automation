@@ -6,9 +6,9 @@
 FROM docker://nixos/nix
 RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
 
-RUN git clone https://github.com/diffkemp/diffkemp /diffkemp
+RUN git clone -b fix-new-kernels https://github.com/PLukas2018/diffkemp /diffkemp
 COPY files /runner
 
 # Caching dependencies
 RUN nix develop /runner/ --command echo 'Nix dependencies downloaded'
-RUN /runner/build_diffkemp.sh && rm -rf /diffkemp/build
+RUN /runner/build_diffkemp.sh

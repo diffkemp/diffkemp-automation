@@ -1,8 +1,14 @@
 # DiffKemp Automation
 
-Project that automatically executes DiffKemp on new releases of certain projects
--- it compares them with previous versions and provides web interface for
-viewing the results. This should enable to DiffKemp developer:
+Project that automatically executes DiffKemp on:
+
+- **new releases** of certain projects
+  -- it compares them with previous versions and provides web interface for
+  viewing the results,
+- **certain commits** of projects -- it compares them with codebase before the
+  commit.
+
+This should enable to DiffKemp developer:
 
 - find unexpected semantic changes in the analyzed projects,
 - find cases that DiffKemp does not handle correctly yet.

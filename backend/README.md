@@ -2,7 +2,7 @@
 
 Backend server which manages:
 
-- automatic comparison of new versions of projects,
+- automatic comparison of new versions or commits of projects,
 - web interface for going through the results.
 
 ## Requirements / Dependencies

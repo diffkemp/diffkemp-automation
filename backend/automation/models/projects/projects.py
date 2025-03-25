@@ -12,9 +12,10 @@ import yaml
 
 from automation.utils import CONFIGS_DIR
 
+from .commits import ProjectCommits
 from .versions import ProjectVersions
 
-Project = Union[ProjectVersions]
+Project = Union[ProjectVersions, ProjectCommits]
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class ProjectsManager:
             has no compared tags.
         """
         if projects is None:
-            loaded_projects = cls.get_all()
+            loaded_projects = [project for project in cls.get_all()]
         else:
             loaded_projects = [cls.get(project) for project in projects]
 
@@ -72,6 +73,31 @@ class ProjectsManager:
                     )
 
         return projects_tags
+
+    @classmethod
+    def get_projects_commits_for_comparison(
+        cls,
+        projects: Optional[list[str]] = None,
+        init_amount: int = 3,
+    ) -> list[tuple[ProjectCommits, list[str]]]:
+        """
+        Checks if projects has new commits to compare.
+        For those who have, returns [project, commits].
+        """
+        if projects is None:
+            loaded_projects = [project for project in cls.get_all()]
+        else:
+            loaded_projects = [cls.get(project) for project in projects]
+
+        projects_commits = []
+        for project in loaded_projects:
+            if isinstance(project, ProjectCommits):
+                commits = project.get_commits_to_compare(
+                    initial_comparison=init_amount,
+                )
+                if len(commits) > 0:
+                    projects_commits.append((project, commits))
+        return projects_commits
 
     @classmethod
     def get(cls, config_name: str) -> Project:
@@ -111,6 +137,8 @@ class ProjectsManager:
 
         if project_type == "versions":
             return ProjectVersions(config_name, config)
+        elif config["type"] == "commits":
+            return ProjectCommits(config_name, config)
         else:
             raise ValueError(
                 f"Unknown project type: '{project_type}' in config "

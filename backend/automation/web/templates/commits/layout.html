@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Results: {{ result.name }} ({{ result.commit.SHA }}) | DiffKemp Automation
+{% endblock %}
+
+{% block content %}
+
+<div class="px-5 pt-2">
+  <h1>
+    {{result.name}}
+    <small class="text-muted fs-6">
+      {{ result.commit.SHA }}
+    </small>
+  </h1>
+  <div class="d-flex fs-6 justify-content-between">
+    <div>
+      <span class="badge bg-secondary">Undecided ({{ result.verdict }})</span>
+    </div>
+    <div class="text-muted">
+      <a
+        class="link-underline-light"
+        href="https://github.com/diffkemp/diffkemp/tree/{{ result.diffkemp_sha }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="View DiffKemp version on GitHub"
+      >
+        diffkemp:{{ result.diffkemp_sha[:7] }}
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid px-4">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarCommits">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.endpoint == 'commits_bp.commit_result' %}active{% endif %}"
+            href="{{ result.result_url }}"
+          >
+            Results
+          </a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.endpoint == 'commits_bp.commit_info' %}active{% endif %}"
+            href="{{ result.commit_info_url }}"
+          >
+            Commit info
+          </a
+          >
+        </li>
+        {% if result.non_equal > 0 %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.endpoint == 'commits_bp.commit_differences' %}active{% endif %}"
+            href="{{ result.differences_url }}"
+          >
+            Differences
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="fs-5">
+      <span class="badge bg-success">Equal: {{ result.equal }}</span>
+      <span class="badge bg-danger">Non equal: {{ result.non_equal }}</span>
+      <span class="badge bg-secondary">Unknown: {{ result.unknown }}</span>
+      <span class="badge bg-warning">Error: {{ result.error }}</span>
+      <span class="badge bg-info">Differing: {{ result.differing }}</span>
+    </div>
+  </nav>
+
+  {% block subcontent %}
+
+  {% endblock %}
+</div>
+
+{% block viewer %}
+
+{% endblock %}
+
+{% endblock %}
+

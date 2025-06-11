@@ -1,0 +1,12 @@
+{% extends "commits/layout.html" %}
+
+{% block viewer %}
+<iframe
+  title="DiffKemp comparison viewer showing found differences"
+  src="{{ result.viewer_url }}"
+  class="viewer-iframe"
+  referrerpolicy="no-referrer"
+  allowfullscreen
+  >
+</iframe>
+{% endblock %}

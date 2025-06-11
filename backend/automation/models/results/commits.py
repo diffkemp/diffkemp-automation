@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
+from git import Commit
 
 from automation.models.projects.commits import ProjectCommits
 
@@ -118,6 +119,20 @@ class ResultCommit(ResultBase[ProjectCommits]):
             "type": "commit"
         })
         return result_yaml
+
+    def get_commit(self) -> Commit:
+        return self.get_project().repo.commit(self.commit)
+
+    def get_commit_summary(self) -> str:
+        return str(self.get_commit().summary)
+
+    def get_commit_message(self) -> str:
+        """
+        Returns commit message describing of the commit that was compared."""
+        return str(self.get_commit().message)
+
+    def get_diff(self) -> str:
+        return self.get_project().repo.git.diff(f"{self.commit}^!")
 
     @classmethod
     def from_yaml(cls, result: dict) -> "ResultCommit":

@@ -10,10 +10,12 @@ from flask.typing import ResponseReturnValue
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    from .commits import commits_bp
     from .versions import versions_bp
     from .viewer import view_results_bp
 
     app.register_blueprint(versions_bp)
+    app.register_blueprint(commits_bp)
     app.register_blueprint(view_results_bp)
 
     @app.route("/")

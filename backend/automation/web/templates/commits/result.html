@@ -1,13 +1,11 @@
-{% extends "versions/layout.html" %}
-
-{% block subcontent %}
-
+{% extends "commits/layout.html" %} {% block head %} {{ super() }} {% endblock
+%} {% block subcontent %}
 <h2>Results</h2>
 
 <ul>
   <li><b>Comparison date</b>: {{ result.date.date() }}</li>
-  <li><b>Old tag</b>: {{ result.old_tag }}</li>
-  <li><b>New tag</b>: {{ result.new_tag }}</li>
+  <li><b>Commit SHA</b>: {{ result.commit.SHA }}</li>
+  <li><b>Commit summary</b>: {{ result.commit.summary }}</li>
 </ul>
 
 <h3>Compared functions</h3>
@@ -32,5 +30,4 @@
     {% endfor %}
   </tbody>
 </table>
-
 {% endblock %}

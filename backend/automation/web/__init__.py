@@ -3,6 +3,9 @@ Python package proving web interface for the automation.
 
 :author: Lukas Petr
 """
+import sys
+
+import gunicorn.app.wsgiapp as wsgiapp
 from flask import Flask, redirect, url_for
 from flask.typing import ResponseReturnValue
 
@@ -48,3 +51,9 @@ def development_run() -> None:
 
     app = create_app()
     app.run(host=args.host, port=args.port, debug=True)
+
+
+def release_run() -> None:
+    sys.argv = ["gunicorn", "-w", "4", "-b", "localhost:49000",
+                "automation.web:create_app()"]
+    wsgiapp.run()

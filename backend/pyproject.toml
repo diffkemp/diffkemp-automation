@@ -17,7 +17,8 @@ dependencies = [
     "requests==2.32.3",
     "pyyaml==6.0.2",
     "GitPython==3.1.44",
-    "mypy==1.19.1"
+    "mypy==1.19.1",
+    "gunicorn==23.0.0",
 ]
 
 [tool.poetry]
@@ -35,6 +36,7 @@ dev = [
     "types-appdirs==1.4.3.5",
     "types-requests==2.32.4.20250913",
     "types-PyYAML==6.0.12.20250915",
+    "types-gunicorn==23.0.0.20251031"
 ]
 
 
@@ -42,6 +44,7 @@ dev = [
 # Command checks if new releases of projects are available and compares them.
 diffkemp-automation-compare = "automation.comparator:compare_new"
 diffkemp-automation-dev-web = "automation.web:development_run"
+diffkemp-automation-web = "automation.web:release_run"
 
 [tool.flake8]
 extend_exclude = [

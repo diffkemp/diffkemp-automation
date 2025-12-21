@@ -1,0 +1,36 @@
+{% extends "versions/layout.html" %}
+
+{% block subcontent %}
+
+<h2>Results</h2>
+
+<ul>
+  <li><b>Comparison date</b>: {{ result.date.strftime("%Y-%m%d") }}</li>
+  <li><b>Old tag</b>: {{ result.old_tag }}</li>
+  <li><b>New tag</b>: {{ result.new_tag }}</li>
+</ul>
+
+<h3>Compared functions</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Compared function</th>
+      <th>DiffKemp result</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for function, info in result.functions.items() %}
+    <tr>
+      <td><code>{{function}}</code></td>
+      <td class="fs-5">
+        <span class="badge {{ result.get_function_bg_class(function) }}">
+          {{ info.diffkemp_result.value.capitalize() }}
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

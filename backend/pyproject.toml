@@ -41,6 +41,7 @@ dev = [
 [project.scripts]
 # Command checks if new releases of projects are available and compares them.
 diffkemp-automation-compare = "automation.comparator:compare_new"
+diffkemp-automation-dev-web = "automation.web:development_run"
 
 [tool.flake8]
 extend_exclude = [

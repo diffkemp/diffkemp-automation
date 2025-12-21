@@ -39,6 +39,12 @@ Backend server which manages:
    backend/create_cron_job.sh
    ```
 
+5. Running web server
+
+   ```bash
+   diffkemp-automation-dev-web
+   ```
+
 ### Code style checking
 
 ```bash

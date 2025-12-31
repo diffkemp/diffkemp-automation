@@ -9,7 +9,7 @@ from automation.models.projects.versions import ProjectVersions
 
 def test_has_new_release_success(mocker):
     """Test that checking for new releases works if new release exists."""
-    project = ProjectsManager.get("mbedtls")
+    project = ProjectsManager.get("wolfssl")
     mocker.patch.object(project, "get_latest_compared_version",
                         return_value=Version("3.6.0"))
     assert isinstance(project, ProjectVersions)
@@ -20,7 +20,7 @@ def test_has_new_release_failure(mocker):
     """
     Test that checking for new releases works if new release does not exist.
     """
-    project = ProjectsManager.get("mbedtls")
+    project = ProjectsManager.get("wolfssl")
     mocker.patch.object(project, "get_latest_compared_version",
                         return_value=Version("150.6.0"))
     assert isinstance(project, ProjectVersions)
@@ -29,15 +29,15 @@ def test_has_new_release_failure(mocker):
 
 def test_get_github_latest_version():
     """Tests getting latest version from github works."""
-    mbedtls = cast(ProjectVersions, ProjectsManager.get("mbedtls"))
-    assert mbedtls.get_latest_release() is not None
+    wolfssl = cast(ProjectVersions, ProjectsManager.get("wolfssl"))
+    assert wolfssl.get_latest_release() is not None
     nettle = cast(ProjectVersions, ProjectsManager.get("nettle"))
     assert nettle.get_latest_release() is not None
 
 
 def test_get_tags_to_compare(mocker):
     """Tests that getting tags to compare works."""
-    project = cast(ProjectVersions, ProjectsManager.get("mbedtls"))
+    project = cast(ProjectVersions, ProjectsManager.get("wolfssl"))
     mocker.patch.object(project, "get_latest_compared_version",
                         return_value=Version("3.5.2"))
     mocker.patch.object(project, "get_release_tags", return_value=[

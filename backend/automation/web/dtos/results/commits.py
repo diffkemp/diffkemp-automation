@@ -37,6 +37,7 @@ class CommitDTO:
     summary: str
     message: str
     diff: str
+    date: datetime
 
     @classmethod
     def create(cls, result: ResultCommit) -> "CommitDTO":
@@ -45,6 +46,7 @@ class CommitDTO:
             summary=result.get_commit_summary(),
             message=result.get_commit_message(),
             diff=result.get_diff(),
+            date=result.get_commit_datetime(),
         )
 
 

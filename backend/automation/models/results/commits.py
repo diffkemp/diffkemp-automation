@@ -131,6 +131,9 @@ class ResultCommit(ResultBase[ProjectCommits]):
         Returns commit message describing of the commit that was compared."""
         return str(self.get_commit().message)
 
+    def get_commit_datetime(self) -> datetime:
+        return self.get_commit().committed_datetime
+
     def get_diff(self) -> str:
         return self.get_project().repo.git.diff(f"{self.commit}^!")
 

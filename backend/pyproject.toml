@@ -55,6 +55,7 @@ extend_exclude = [
     ".venv",
     "__pycache__",
     "comparison_container/",
+    "alembic/",
 ]
 import-order-style = "google"
 inline-quotes = "double"
@@ -66,6 +67,7 @@ src_paths = [
 ]
 extend_skip = [
     "comparison_container",
+    "alembic",
 ]
 
 # Python typing check
@@ -73,6 +75,7 @@ extend_skip = [
 exclude = [
     "^comparison_container/",
     "^tests/",
+    "^alembic/",
 ]
 python_version = "3.12"
 disallow_untyped_defs = true

@@ -7,8 +7,7 @@ from typing import List
 
 from flask import Blueprint, abort, render_template
 
-from automation.models.results.results import Results
-from automation.models.results.versions import ResultVersion
+from automation.db import ResultsRepo
 from automation.web.dtos.results.versions import ResultDTO, ResultOverviewDTO
 
 versions_bp = Blueprint("versions_bp", __name__, url_prefix="/versions")
@@ -22,10 +21,12 @@ def version_result(
     diffkemp_sha: str,
 ) -> str:
     """Route showing iframe with result viewer."""
-    results = Results().get_version_results().get(
-        config_name,
-        ResultVersion.create_key(old_tag, new_tag),
-        diffkemp_sha,
+    repo = ResultsRepo()
+    results = repo.get_versions(
+        config_file_name=config_name,
+        diffkemp_sha=diffkemp_sha,
+        old_tag=old_tag,
+        new_tag=new_tag,
     )
 
     if len(results) != 1:
@@ -48,10 +49,12 @@ def version_differences(
     diffkemp_sha: str,
 ) -> str:
     """Route showing iframe with differences for given result."""
-    results = Results().get_version_results().get(
-        config_name,
-        ResultVersion.create_key(old_tag, new_tag),
-        diffkemp_sha,
+    repo = ResultsRepo()
+    results = repo.get_versions(
+        config_file_name=config_name,
+        diffkemp_sha=diffkemp_sha,
+        old_tag=old_tag,
+        new_tag=new_tag,
     )
 
     if len(results) != 1:
@@ -68,8 +71,8 @@ def version_differences(
 @versions_bp.route("/")
 def versions_list() -> str:
     """Route showing list of results for projects' versions."""
-    results = Results().get_version_results().get()
-    results.sort(key=lambda result: result.date, reverse=True)
+    repo = ResultsRepo()
+    results = repo.get_versions()
 
     dto: List[ResultOverviewDTO] = []
     # TODO Add paging

@@ -7,7 +7,7 @@ from typing import List
 
 from flask import Blueprint, abort, render_template
 
-from automation.models.results.results import Results
+from automation.db import ResultsRepo
 from automation.web.dtos.results.commits import ResultDTO, ResultOverviewDTO
 
 commits_bp = Blueprint("commits_bp", __name__, url_prefix="/commits")
@@ -20,10 +20,11 @@ def commit_result(
     diffkemp_sha: str,
 ) -> str:
     """Route showing iframe with result viewer."""
-    results = Results().get_commit_results().get(
-        config_name,
-        commit,
-        diffkemp_sha,
+    repo = ResultsRepo()
+    results = repo.get_commits(
+        config_file_name=config_name,
+        commit=commit,
+        diffkemp_sha=diffkemp_sha,
     )
 
     if len(results) != 1:
@@ -44,10 +45,11 @@ def commit_differences(
     diffkemp_sha: str,
 ) -> str:
     """Route showing iframe with differences for given result."""
-    results = Results().get_commit_results().get(
-        config_name,
-        commit,
-        diffkemp_sha,
+    repo = ResultsRepo()
+    results = repo.get_commits(
+        config_file_name=config_name,
+        commit=commit,
+        diffkemp_sha=diffkemp_sha,
     )
 
     if len(results) != 1:
@@ -68,10 +70,11 @@ def commit_info(
     diffkemp_sha: str,
 ) -> str:
     """Route showing iframe with differences for given result."""
-    results = Results().get_commit_results().get(
-        config_name,
-        commit,
-        diffkemp_sha,
+    repo = ResultsRepo()
+    results = repo.get_commits(
+        config_file_name=config_name,
+        commit=commit,
+        diffkemp_sha=diffkemp_sha,
     )
 
     if len(results) != 1:
@@ -88,8 +91,8 @@ def commit_info(
 @commits_bp.route("/")
 def commits_list() -> str:
     """Route showing list of results for projects' commits."""
-    results = Results().get_commit_results().get()
-    results.sort(key=lambda result: result.date, reverse=True)
+    repo = ResultsRepo()
+    results = repo.get_commits()
 
     dto: List[ResultOverviewDTO] = []
     # TODO Add paging

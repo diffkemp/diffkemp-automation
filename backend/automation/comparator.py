@@ -15,8 +15,10 @@ from typing import Any, List, Tuple
 import yaml
 from git import Optional
 
+from automation.db import ResultsRepo
+
 from .models.projects import ProjectCommits, ProjectsManager, ProjectVersions
-from .models.results import Results, ResultsVersions
+from .models.results import ResultsVersions
 from .models.results.commits import ResultsCommits
 from .utils import REPOS_DIR, VIEW_RESULTS_DIR
 
@@ -234,7 +236,7 @@ class Comparator:
 
         logger.debug("Saving results")
 
-        results = Results()
+        repo = ResultsRepo()
 
         # For each project:
         # - saves view directories to disk and
@@ -273,17 +275,15 @@ class Comparator:
                     stderr=subprocess.DEVNULL,
                 )
                 # Load results
-                results.extend(
+                results = \
                     ResultsVersions.from_analyzer_results(
                         name=project.name,
                         config_file_name=project.config_name,
                         diffkemp_sha=self.diffkemp_sha,
                         path=result_file,
                     )
-                )
+                repo.add_multiple(results)
                 project.set_latest_compared_tag(tags[-1])
-        # Updating total results
-        results.save()
 
     def compare_projects_commits(
         self,
@@ -335,7 +335,7 @@ class Comparator:
 
         logger.debug("Saving results")
 
-        results = Results()
+        repo = ResultsRepo()
 
         # For each project:
         # - saves view directories to disk and
@@ -371,16 +371,14 @@ class Comparator:
                     result_file,
                 ], stdout=subprocess.DEVNULL)
                 # Load results
-                results.extend(
-                    ResultsCommits.from_analyzer_results(
-                        name=project.name,
-                        config_file_name=project.config_name,
-                        diffkemp_sha=self.diffkemp_sha,
-                        path=result_file)
+                results = ResultsCommits.from_analyzer_results(
+                    name=project.name,
+                    config_file_name=project.config_name,
+                    diffkemp_sha=self.diffkemp_sha,
+                    path=result_file
                 )
+                repo.add_multiple(results)
                 project.set_latest_compared_commit(commits[-1])
-        # Updating total results
-        results.save()
 
     def __del__(self) -> None:
         self.cleanup()

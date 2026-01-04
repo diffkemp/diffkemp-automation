@@ -23,3 +23,4 @@ VIEW_RESULTS_DIR = RESULTS_DIR / "view"
 LATEST_VERSION_PATH = RESULTS_DIR / "latest_versions.yml"
 # File, where will be saved the results of comparison.
 RESULTS_PATH = RESULTS_DIR / "results.yml"
+RESULTS_DB_PATH = RESULTS_DIR / "results.db"

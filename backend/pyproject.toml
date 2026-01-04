@@ -19,6 +19,7 @@ dependencies = [
     "GitPython==3.1.44",
     "mypy==1.19.1",
     "gunicorn==23.0.0",
+    "sqlalchemy==2.0.45",
 ]
 
 [tool.poetry]

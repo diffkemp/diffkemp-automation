@@ -16,6 +16,7 @@ from .versions import ResultsVersions, ResultVersion
 
 logger = logging.getLogger(__name__)
 
+ResultSubType = Union[ResultVersion, ResultCommit]
 ResultsSubTypes = Union[ResultsVersions, ResultsCommits]
 
 

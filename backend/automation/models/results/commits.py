@@ -3,10 +3,9 @@ Results of comparison of project that compare commits.
 
 :author: Lukas Petr
 """
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import yaml
 from git import Commit
@@ -14,7 +13,7 @@ from git import Commit
 from automation.models.projects.commits import ProjectCommits
 
 from .function import FunctionResult
-from .result import ResultBase, ResultsBase
+from .result import ResultBase
 from .types import ComparisonStatus, DiffKempResultType
 
 
@@ -104,21 +103,9 @@ class ResultCommit(ResultBase[ProjectCommits]):
             all_diffs_matched=result["confident"],
         )
 
-    def get_key(self) -> str:
-        return self.commit
-
     def get_relative_viewer_path(self) -> Path:
         return Path(
             self.diffkemp_sha, self.config_file_name, self.commit)
-
-    def to_yaml(self) -> dict:
-        result_yaml = super().to_yaml()
-        result_yaml.update({
-            "commit": self.commit,
-            "all_diffs_matched": self.all_diffs_matched,
-            "type": "commit"
-        })
-        return result_yaml
 
     def get_commit(self) -> Commit:
         return self.get_project().repo.commit(self.commit)
@@ -147,33 +134,21 @@ class ResultCommit(ResultBase[ProjectCommits]):
         )
 
 
-class ResultsCommits(ResultsBase[ResultCommit, ProjectCommits]):
-    """
-    Collection of commit comparison results.
+class ResultsCommits():
+    """Class for parsing results for commits."""
 
-    Stores and manages multiple ResultCommit instances.
-    """
-
-    def __init__(
-        self,
-        results: Optional[Dict[str, Dict[str, List[ResultCommit]]]] = None,
-    ):
-        super().__init__(results)
-
-    @classmethod
+    @staticmethod
     def from_analyzer_results(
-        cls,
         name: str,
         config_file_name: str,
         diffkemp_sha: str,
         path: Path,
-    ) -> "ResultsCommits":
-        """Loads results from analyser results file."""
+    ) -> list[ResultCommit]:
+        """Loads results from analyser results file and returns them."""
         with path.open("r") as file:
             yaml_results = yaml.safe_load(file)
 
-        all_results: dict = defaultdict(lambda: defaultdict(list))
-        results = all_results[config_file_name]
+        results = []
 
         for commit, result in yaml_results.items():
             commit_result = ResultCommit.from_analyzer_results(
@@ -183,5 +158,5 @@ class ResultsCommits(ResultsBase[ResultCommit, ProjectCommits]):
                 diffkemp_sha=diffkemp_sha,
                 result=result
             )
-            results[commit].append(commit_result)
-        return cls(dict(all_results))
+            results.append(commit_result)
+        return results

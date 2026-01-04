@@ -103,12 +103,10 @@ def test_results_from_analyzer(mocker):
   verdict: not equal
 """
     mocker.patch("pathlib.Path.open", mocker.mock_open(read_data=file_data))
-    results = ResultsCommits.from_analyzer_results(
+    results_list = ResultsCommits.from_analyzer_results(
         "bpf-next", "bpf-next", "ffe6d594d0973dc4d90d15090ef4119b34467ff8",
         Path("results.yml"))
-    results_list = results.get()
     assert len(results_list) == 2
     assert set(map(lambda r: r.commit, results_list)) == {
         "09206af69c5238909af208b3f46a4aa7997ac0e1",
         "201b62ccc83153d2925d310a2afe762905e0c455"}
-    assert len(results.to_yaml()) != [None, None]

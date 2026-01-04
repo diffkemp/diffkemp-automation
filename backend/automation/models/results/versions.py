@@ -5,10 +5,9 @@ Results of comparison of project that compare versions.
 """
 
 import logging
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import yaml
 from packaging.version import Version
@@ -16,7 +15,7 @@ from packaging.version import Version
 from automation.models.projects import ProjectVersions
 
 from .function import FunctionResult
-from .result import ResultBase, ResultsBase
+from .result import ResultBase
 from .types import ComparisonStatus, DiffKempResultType
 
 logger = logging.getLogger(__name__)
@@ -117,14 +116,6 @@ class ResultVersion(ResultBase):
             functions=functions,
         )
 
-    @staticmethod
-    def create_key(old_tag: str, new_tag: str) -> str:
-        """Create a key for version comparison lookup."""
-        return f"{old_tag} -> {new_tag}"
-
-    def get_key(self) -> str:
-        return self.create_key(self.old_tag, self.new_tag)
-
     def get_old_version(self) -> Version:
         return ProjectVersions.get_version_from_tag(self.old_tag)
 
@@ -137,15 +128,6 @@ class ResultVersion(ResultBase):
             f"{self.old_tag}-{self.new_tag}"
         )
 
-    def to_yaml(self) -> dict:
-        result_yaml = super().to_yaml()
-        result_yaml.update({
-            "old_tag": self.old_tag,
-            "new_tag": self.new_tag,
-            "type": "version"
-        })
-        return result_yaml
-
     @classmethod
     def from_yaml(cls, result: dict) -> "ResultVersion":
         kwargs = super()._parse_yaml_base(result)
@@ -156,29 +138,18 @@ class ResultVersion(ResultBase):
         )
 
 
-class ResultsVersions(ResultsBase[ResultVersion, ProjectVersions]):
-    """
-    Collection of version comparison results.
+class ResultsVersions():
+    """Class for parsing results for versions."""
 
-    Stores and manages multiple ResultVersion instances.
-    """
-
-    def __init__(
-        self,
-        results: Optional[Dict[str, Dict[str, List[ResultVersion]]]] = None,
-    ) -> None:
-        super().__init__(results)
-
-    @classmethod
+    @staticmethod
     def from_analyzer_results(
-        cls, name: str, config_file_name: str, diffkemp_sha: str, path: Path
-    ) -> "ResultsVersions":
-        """Loads results from analyser results file."""
+        name: str, config_file_name: str, diffkemp_sha: str, path: Path
+    ) -> list[ResultVersion]:
+        """Loads results from analyser results file and returns them."""
         with path.open("r", encoding="utf-8") as file:
             yaml_results = yaml.safe_load(file)
 
-        all_results: dict = defaultdict(lambda: defaultdict(list))
-        results = all_results[config_file_name]
+        results = []
 
         for tags, result in yaml_results.items():
             version_result = ResultVersion.from_analyzer_results(
@@ -188,5 +159,5 @@ class ResultsVersions(ResultsBase[ResultVersion, ProjectVersions]):
                 diffkemp_sha=diffkemp_sha,
                 result=result,
             )
-            results[tags].append(version_result)
-        return cls(dict(all_results))
+            results.append(version_result)
+        return results

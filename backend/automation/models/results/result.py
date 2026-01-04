@@ -6,11 +6,9 @@ Module containing base class for representing results.
 
 import logging
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from datetime import datetime
-from itertools import chain
 from pathlib import Path
-from typing import Any, Dict, Generic, List, Optional, TypeVar, cast
+from typing import Any, Dict, Generic, Optional, TypeVar, cast
 
 from automation.models.projects.project import TProject
 from automation.models.projects.projects import ProjectsManager
@@ -81,11 +79,6 @@ class ResultBase(Generic[TProject], ABC):
         # Cache for lazy-loaded project
         self._project: Optional[TProject] = None
 
-    @abstractmethod
-    def get_key(self) -> str:
-        """Return key for this result (used for quick searching results)."""
-        pass
-
     def get_diffkemp_verdict(self) -> OverallResult:
         """Return overall verdict based on function results."""
         if self.non_equal != 0:
@@ -128,22 +121,6 @@ class ResultBase(Generic[TProject], ABC):
             return None
         return DiffKempOutYaml.from_file(path)
 
-    def to_yaml(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "config_file_name": self.config_file_name,
-            "diffkemp_sha": self.diffkemp_sha,
-            "equal": self.equal,
-            "non_equal": self.non_equal,
-            "unknown": self.unknown,
-            "error": self.error,
-            "date": self.date.isoformat(),
-            "no_differing": self.no_differing,
-            "functions": [
-                function.to_yaml() for function in self.functions.values()],
-            "comparison_status": str(self.comparison_status),
-        }
-
     @staticmethod
     def _parse_yaml_base(result: Dict[str, Any]) -> dict:
         """
@@ -171,74 +148,3 @@ class ResultBase(Generic[TProject], ABC):
             "functions": functions,
             "comparison_status": ComparisonStatus(result["comparison_status"]),
         }
-
-
-class ResultsBase(Generic[TResult, TProject], ABC):
-    """
-    Base class for storing and searching of multiple results.
-
-    :ivar results: Map results[config_name][key] -> results.
-    """
-
-    results: Dict[str, Dict[str, List[TResult]]]
-
-    def __init__(
-        self,
-        results: Optional[Dict[str, Dict[str, List[TResult]]]] = None
-    ) -> None:
-        self.results = (
-            results if results else defaultdict(lambda: defaultdict(list)))
-
-    def add(self, result: TResult) -> None:
-        """Adds result."""
-        self.results[result.config_file_name][result.get_key()].append(result)
-
-    def extend(self, other: "ResultsBase") -> None:
-        """Extend results with other results."""
-        for config_name, key_results in other.results.items():
-            for key, results in key_results.items():
-                self.results[config_name][key].extend(results)
-
-    def get(
-        self,
-        config_name: Optional[str] = None,
-        key: Optional[str] = None,
-        diffkemp_sha: Optional[str] = None,
-    ) -> list[TResult]:
-        """Returns list of results specified by the parameters."""
-        if (
-          config_name is not None and
-          key is not None and
-          diffkemp_sha is not None):
-            return list(
-                filter(
-                    lambda res: res.diffkemp_sha == diffkemp_sha,
-                    self.results[config_name][key],
-                )
-            )
-        elif config_name is not None and key is not None:
-            return self.results[config_name][key]
-        elif config_name is not None:
-            return list(chain(*self.results[config_name].values()))
-        return list(
-            chain(
-                *map(
-                    lambda project_results: list(
-                        chain(*project_results.values())
-                    ),
-                    self.results.values(),
-                )
-            )
-        )
-
-    @classmethod
-    @abstractmethod
-    def from_analyzer_results(
-        cls, name: str, config_file_name: str, diffkemp_sha: str, path: Path
-    ) -> "ResultsBase":
-        """Loads results from analyzer results file."""
-        pass
-
-    def to_yaml(self) -> List[Dict[str, Any]]:
-        """Serialize the results to YAML format."""
-        return list(map(lambda result: result.to_yaml(), self.get()))

@@ -1,19 +1,19 @@
 """File for saving results to SqLite DB."""
 import logging
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Sequence
 
 from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Integer,
                         String, Table, create_engine)
 from sqlalchemy.orm import registry, relationship, sessionmaker
 
-from automation.models.results.commits import ResultCommit, ResultsCommits
+from automation.models.results.commits import ResultCommit
 from automation.models.results.function import FunctionResult
 from automation.models.results.result import ResultBase
-from automation.models.results.results import Results, ResultSubType
+from automation.models.results.results import ResultSubType
 from automation.models.results.types import (ComparisonStatus,
                                              DiffKempResultType)
-from automation.models.results.versions import ResultsVersions, ResultVersion
-from automation.utils import RESULTS_DB_PATH, RESULTS_PATH
+from automation.models.results.versions import ResultVersion
+from automation.utils import RESULTS_DB_PATH
 
 mapper_registry = registry()
 
@@ -83,10 +83,9 @@ class ResultsRepo:
     """Repository for working with results in DB."""
     def add_multiple(
         self,
-        results: Union[ResultsVersions, ResultsCommits],
+        results_list: Sequence[ResultSubType],
     ) -> None:
         """Add multiple results to DB."""
-        results_list = results.get()
         for result in results_list:
             functions_map = result.functions  # type: ignore
             functions_list = list(functions_map.values())
@@ -179,30 +178,3 @@ class ResultsRepo:
             # Safe deletion
             if hasattr(result, "_functions_list"):
                 delattr(result, "_functions_list")
-
-
-def migrate_from_results_file() -> None:
-    """Migrate data from YAML file to database."""
-    if not RESULTS_PATH.exists():
-        print("No results file found to migrate")
-        return
-
-    results = Results()
-    repo = ResultsRepo()
-
-    try:
-        commit_count = len(results.get_commit_results().get())
-        version_count = len(results.get_version_results().get())
-
-        repo.add_multiple(results.get_commit_results())
-        repo.add_multiple(results.get_version_results())
-
-        print(f"Successfully migrated {commit_count} commits and "
-              f"{version_count} versions")
-    except Exception as e:
-        print(f"Migration failed: {e}")
-        raise
-
-
-if __name__ == "__main__":
-    migrate_from_results_file()

@@ -3,6 +3,7 @@ Python package proving web interface for the automation.
 
 :author: Lukas Petr
 """
+import logging
 import sys
 
 import gunicorn.app.wsgiapp as wsgiapp
@@ -48,6 +49,8 @@ def development_run() -> None:
     )
 
     args = parser.parse_args()
+
+    logging.basicConfig(level=logging.DEBUG)
 
     app = create_app()
     app.run(host=args.host, port=args.port, debug=True)

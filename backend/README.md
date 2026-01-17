@@ -27,19 +27,27 @@ Backend server which manages:
     pip install -e .[dev]
     ```
 
-3. Run initial comparison:
+3. Prepare DB:
+
+   ```bash
+   alembic upgrade head
+   ```
+
+4. Run initial comparison:
 
    ```bash
    diffkemp-automation-compare
    ```
 
-4. After initial comparison is finished, setup automatic checking of new versions:
+5. After initial comparison is finished, setup automatic checking of new versions:
 
    ```bash
    backend/create_cron_job.sh
    ```
 
-5. Running web server
+6. Prepare `.env` file, create it based on `.env.example`
+
+7. Running web server
 
    ```bash
    diffkemp-automation-dev-web
@@ -59,3 +67,6 @@ mypy .
 - The container is specified in `comparison_container/Dockerfile`.
 - The container contains files from `comparison_container/files/` in `/runner/`
   directory, for more details see `comparison_container/files/README.md`.
+- For DB is used [SQLite](https://sqlite.org/), [SqlAlchemy](https://www.sqlalchemy.org/)
+  is used for ORM. For DB scheme migration is used [Alembic](https://alembic.sqlalchemy.org/en/latest/).
+- For logging in is used [GitHub App](https://docs.github.com/en/apps/creating-github-apps/writing-code-for-a-github-app/building-a-login-with-github-button-with-a-github-app).

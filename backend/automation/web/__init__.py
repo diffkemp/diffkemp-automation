@@ -4,16 +4,20 @@ Python package proving web interface for the automation.
 :author: Lukas Petr
 """
 import logging
+import os
 import sys
 
 import gunicorn.app.wsgiapp as wsgiapp
+from dotenv import load_dotenv
 from flask import Flask, redirect, url_for
 from flask.typing import ResponseReturnValue
 
 
 def create_app() -> Flask:
+    load_dotenv()
     app = Flask(__name__)
 
+    from .auth import auth_bp
     from .commits import commits_bp
     from .versions import versions_bp
     from .viewer import view_results_bp
@@ -21,10 +25,16 @@ def create_app() -> Flask:
     app.register_blueprint(versions_bp)
     app.register_blueprint(commits_bp)
     app.register_blueprint(view_results_bp)
+    app.register_blueprint(auth_bp)
 
     @app.route("/")
     def index() -> ResponseReturnValue:
         return redirect(url_for("versions_bp.versions_list"))
+
+    session_secret_key = os.getenv("APP_SESSION_SECRET_KEY")
+    if not session_secret_key:
+        raise ValueError("APP_SESSION_SECRET_KEY must be set in .env")
+    app.secret_key = session_secret_key
 
     return app
 

@@ -1,3 +1,6 @@
+.env
+
+# Python specific
 .venv/
 
 *.pyc

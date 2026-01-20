@@ -1,4 +1,5 @@
 {% extends "versions/layout.html" %}
+{% from "macros.html" import expected_fun_result_select %}
 
 {% block subcontent %}
 
@@ -17,6 +18,7 @@
     <tr>
       <th>Compared function</th>
       <th>DiffKemp result</th>
+      <th>Expected result</th>
     </tr>
   </thead>
   <tbody>
@@ -28,9 +30,20 @@
           {{ info.diffkemp_result.value.capitalize() }}
         </span>
       </td>
+      <td class="fs-5">
+        {% set api_url = url_for(
+             'api_bp.update_fun_expected_res_for_version',
+              config_name=result.config_name,
+              old_tag=result.old_tag,
+              new_tag=result.new_tag,
+              diffkemp_sha=result.diffkemp_sha,
+              function_name=function,
+           )
+        %}
+        {{ expected_fun_result_select(info, api_url) }}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-
 {% endblock %}

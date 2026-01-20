@@ -11,7 +11,8 @@ from automation.models.results.function import FunctionResult
 from automation.models.results.result import ResultBase
 from automation.models.results.results import ResultSubType
 from automation.models.results.types import (ComparisonStatus,
-                                             DiffKempResultType)
+                                             DiffKempResultType,
+                                             ExpectedResultType)
 from automation.models.results.versions import ResultVersion
 from automation.utils import RESULTS_DB_PATH
 
@@ -48,6 +49,8 @@ function_results_table = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("name", String, nullable=False),
     Column("diffkemp_result", Enum(DiffKempResultType), nullable=False),
+    Column("expected_result", Enum(ExpectedResultType)),
+    Column("expected_result_changed_by", String),
     Column("result_id", Integer, ForeignKey("results.id"), nullable=False),
 )
 
@@ -178,3 +181,66 @@ class ResultsRepo:
             # Safe deletion
             if hasattr(result, "_functions_list"):
                 delattr(result, "_functions_list")
+
+
+class FunctionResultsRepo:
+    """Repository for working with function results in DB."""
+
+    def getForCommit(
+        self,
+        config_name: str,
+        commit: str,
+        diffkemp_sha: str,
+        function_name: str,
+    ) -> Optional[FunctionResult]:
+        """Get a specific function result by filtering on parent result."""
+        with Session() as session:
+            query = (
+                session.query(FunctionResult)
+                .join(results_table,
+                      function_results_table.c.result_id == results_table.c.id)
+                .where(
+                    function_results_table.c.name == function_name,
+                    results_table.c.config_file_name == config_name,
+                    results_table.c.commit == commit,
+                    results_table.c.diffkemp_sha == diffkemp_sha,
+                )
+            )
+            result = query.first()
+            if result:
+                session.expunge(result)
+            return result
+
+    def getForVersion(
+        self,
+        config_name: str,
+        old_tag: str,
+        new_tag: str,
+        diffkemp_sha: str,
+        function_name: str,
+    ) -> Optional[FunctionResult]:
+        """Get a specific function result by filtering on parent result."""
+        with Session() as session:
+            query = (
+                session.query(FunctionResult)
+                .join(results_table,
+                      function_results_table.c.result_id == results_table.c.id)
+                .where(
+                    function_results_table.c.name == function_name,
+                    results_table.c.config_file_name == config_name,
+                    results_table.c.old_tag == old_tag,
+                    results_table.c.new_tag == new_tag,
+                    results_table.c.diffkemp_sha == diffkemp_sha,
+                )
+            )
+            result = query.first()
+            if result:
+                session.expunge(result)
+            return result
+
+    def update(self, function_result: FunctionResult) -> None:
+        """Update a function result in the database."""
+        with Session() as session:
+            # Merge the detached object back into the session
+            session.merge(function_result)
+            session.commit()

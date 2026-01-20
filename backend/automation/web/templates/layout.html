@@ -103,6 +103,41 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <script type="text/javascript">
+      // Updates expected result of function
+      function updateFunExpectedResult(selectElement) {
+        const expectedResult = selectElement.value;
+        const url = selectElement.dataset.apiUrl;
+        // The currentExpected is used to be able to change the expected back
+        // to the one set before it was changed by the user.
+        // This is just in case error occurs in the backend.
+        const currentExpected = selectElement.dataset.currentExpected;
+        console.log(currentExpected);
+        fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ "expected_result": expectedResult})
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Something went wrong');
+          }
+          // Success, update the current expected result
+          selectElement.dataset.currentExpected = expectedResult;
+        }).catch(() => {
+          console.log("here");
+          alert(
+            "Error occurred while changing the expected result for function " +
+            `'${selectElement.dataset.function}' from '${currentExpected}' to ` +
+            `'${expectedResult}'.\n\n` +
+            "Please try it again."
+          );
+          // Setting back the original value.
+          selectElement.value = currentExpected;
+        });
+      }
+    </script>
 
     {% block scripts %}{% endblock %}
   </body>

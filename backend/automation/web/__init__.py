@@ -17,6 +17,7 @@ def create_app() -> Flask:
     load_dotenv()
     app = Flask(__name__)
 
+    from .api import api_bp
     from .auth import auth_bp
     from .commits import commits_bp
     from .versions import versions_bp
@@ -26,6 +27,7 @@ def create_app() -> Flask:
     app.register_blueprint(commits_bp)
     app.register_blueprint(view_results_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(api_bp)
 
     @app.route("/")
     def index() -> ResponseReturnValue:

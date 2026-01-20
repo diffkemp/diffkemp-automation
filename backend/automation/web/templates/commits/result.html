@@ -1,5 +1,7 @@
-{% extends "commits/layout.html" %} {% block head %} {{ super() }} {% endblock
-%} {% block subcontent %}
+{% extends "commits/layout.html" %}
+{% from "macros.html" import expected_fun_result_select %}
+
+{% block subcontent %}
 <h2>Results</h2>
 
 <ul>
@@ -16,6 +18,7 @@
     <tr>
       <th>Compared function</th>
       <th>DiffKemp result</th>
+      <th>Expected result</th>
     </tr>
   </thead>
   <tbody>
@@ -26,6 +29,17 @@
         <span class="badge {{ result.get_function_bg_class(function) }}">
           {{ info.diffkemp_result.value.capitalize() }}
         </span>
+      </td>
+      <td class="fs-5">
+        {% set api_url = url_for(
+             'api_bp.update_fun_expected_res_for_commit',
+              config_name=result.config_name,
+              commit=result.commit.SHA,
+              diffkemp_sha=result.diffkemp_sha,
+              function_name=function,
+           )
+        %}
+        {{ expected_fun_result_select(info, api_url) }}
       </td>
     </tr>
     {% endfor %}

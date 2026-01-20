@@ -24,6 +24,13 @@ class DiffKempResultType(StrEnum):
     ERROR = "error"
 
 
+class ExpectedResultType(StrEnum):
+    """Types of expected comparison results from DiffKemp analysis."""
+    UNKNOWN = "unknown"
+    EQUAL = "equal"
+    NON_EQUAL = "non equal"
+
+
 class ComparisonStatus(StrEnum):
     """Status of the comparison."""
 

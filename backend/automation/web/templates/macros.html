@@ -1,0 +1,27 @@
+{% macro expected_fun_result_select(function_result, api_url) %}
+<select class="form-select-sm form-select"
+        {{ 'disabled' if 'user' not in session else ''}}
+        data-function="{{function_result.name}}"
+        data-current-expected="{{function_result.expected_result or 'unknown'}}"
+        data-api-url="{{api_url}}"
+        value="{{function_result.expected_result}}"
+        onchange="updateFunExpectedResult(this)">
+  <option value="unknown"
+          {{'selected' if function_result.expected_result == 'unknown' else ''}}>
+    Unknown
+  </option>
+  <option value="equal"
+          {{'selected' if function_result.expected_result == 'equal' else ''}}>
+    Equal
+  </option>
+  <option value="non equal"
+          {{'selected' if function_result.expected_result == 'non equal' else ''}}>
+    Non equal
+  </option>
+</select>
+<div class="text-muted" style="font-size: 0.7rem;">
+  {% if "user" in session %}
+    Last changed by: {{ function_result.expected_result_changed_by or "" }}
+  {% endif %}
+</div>
+{% endmacro %}

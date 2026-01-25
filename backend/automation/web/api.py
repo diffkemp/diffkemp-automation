@@ -1,4 +1,7 @@
 """File defining HTML REST API endpoints."""
+from functools import wraps
+from typing import Any, Callable
+
 from flask import Blueprint, Response, abort, request, session
 
 from automation.db import FunctionResultsRepo, ResultsRepo
@@ -7,10 +10,21 @@ from automation.models.results.types import ExpectedResultType
 api_bp = Blueprint("api_bp", __name__, url_prefix="/api")
 
 
+def login_required(f: Callable[..., Response]) -> Callable[..., Response]:
+    """Decorator to require user to be logged in."""
+    @wraps(f)
+    def decorated_function(*args: Any, **kwargs: Any) -> Response:
+        if "user" not in session:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @api_bp.put(
     "/commits/<config_name>/<commit>/<diffkemp_sha>"
     "/functions/<function_name>/expected-result"
 )
+@login_required
 def update_fun_expected_res_for_commit(
     config_name: str,
     commit: str,
@@ -18,10 +32,6 @@ def update_fun_expected_res_for_commit(
     function_name: str,
 ) -> Response:
     """Update the expected result for a function."""
-    # Check if user is logged in
-    if "user" not in session:
-        abort(403)
-
     repo = FunctionResultsRepo()
     function_result = repo.getForCommit(
         config_name=config_name,
@@ -45,6 +55,7 @@ def update_fun_expected_res_for_commit(
     "/versions/<config_name>/<old_tag>/<new_tag>/<diffkemp_sha>"
     "/functions/<function_name>/expected-result"
 )
+@login_required
 def update_fun_expected_res_for_version(
     config_name: str,
     old_tag: str,
@@ -53,10 +64,6 @@ def update_fun_expected_res_for_version(
     function_name: str,
 ) -> Response:
     """Update the expected result for a function."""
-    # Check if user is logged in
-    if "user" not in session:
-        abort(403)
-
     repo = FunctionResultsRepo()
     function_result = repo.getForVersion(
         config_name=config_name,
@@ -81,16 +88,13 @@ def update_fun_expected_res_for_version(
     "/commits/<config_name>/<commit>/<diffkemp_sha>"
     "/note"
 )
+@login_required
 def update_res_note_for_commit(
     config_name: str,
     commit: str,
     diffkemp_sha: str,
 ) -> Response:
     """Update the result note for a commit result."""
-    # Check if user is logged in
-    if "user" not in session:
-        abort(403)
-
     repo = ResultsRepo()
     results = repo.get_commits(
         config_file_name=config_name,
@@ -120,10 +124,6 @@ def update_res_note_for_version(
     diffkemp_sha: str,
 ) -> Response:
     """Update the result note for version result."""
-    # Check if user is logged in
-    if "user" not in session:
-        abort(403)
-
     repo = ResultsRepo()
     results = repo.get_versions(
         config_file_name=config_name,

@@ -41,6 +41,7 @@ class ResultBase(Generic[TProject], ABC):
         date: Optional[datetime] = None,
         functions: Optional[Dict[str, FunctionResult]] = None,
         comparison_status: ComparisonStatus = ComparisonStatus.SUCCESS,
+        note: str = "",
     ) -> None:
         """
         :param name: Name of project (used primary for showing to user).
@@ -66,6 +67,7 @@ class ResultBase(Generic[TProject], ABC):
         self.non_equal = non_equal
         self.unknown = unknown
         self.date = date if date else datetime.now()
+        self.note = note
 
         self.functions = functions if functions is not None else {}
         self.comparison_status = comparison_status

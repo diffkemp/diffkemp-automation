@@ -74,6 +74,7 @@ class ResultDTO:
     differences_url: Optional[str]
     viewer_url: Optional[str]
     commit_info_url: str
+    note: str
 
     @classmethod
     def create(
@@ -129,6 +130,7 @@ class ResultDTO:
             differences_url=differences_url,
             viewer_url=viewer_url,
             commit_info_url=commit_info_url,
+            note=result.note,
         )
 
     def get_function_bg_class(self, function_name: str) -> str:

@@ -33,6 +33,7 @@ results_table = Table(
     Column("no_differing", Integer),
     Column("date", DateTime),
     Column("comparison_status", Enum(ComparisonStatus)),
+    Column("note", String),
     # Column for distinguishing between ResultCommit and ResultVersion
     Column("type", String(20)),
     # ResultCommit specific columns
@@ -181,6 +182,13 @@ class ResultsRepo:
             # Safe deletion
             if hasattr(result, "_functions_list"):
                 delattr(result, "_functions_list")
+
+    def update(self, result: ResultSubType) -> None:
+        """Update a function result in the database."""
+        with Session() as session:
+            # Merge the detached object back into the session
+            session.merge(result)
+            session.commit()
 
 
 class FunctionResultsRepo:

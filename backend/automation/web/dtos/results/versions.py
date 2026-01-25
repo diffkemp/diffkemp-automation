@@ -44,6 +44,7 @@ class ResultDTO:
     result_url: str
     differences_url: Optional[str]
     viewer_url: Optional[str]
+    note: str
 
     @classmethod
     def create(
@@ -101,6 +102,7 @@ class ResultDTO:
             result_url=result_url,
             differences_url=differences_url,
             viewer_url=viewer_url,
+            note=result.note,
         )
 
     def get_function_bg_class(self, function_name: str) -> str:

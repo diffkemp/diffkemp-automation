@@ -35,6 +35,7 @@ class ResultCommit(ResultBase[ProjectCommits]):
         date: Optional[datetime] = None,
         functions: Optional[Dict[str, FunctionResult]] = None,
         comparison_status: ComparisonStatus = ComparisonStatus.SUCCESS,
+        note: str = "",
     ):
         """
         :param commit: For which commit are the results.
@@ -56,6 +57,7 @@ class ResultCommit(ResultBase[ProjectCommits]):
             date=date,
             functions=functions,
             comparison_status=comparison_status,
+            note=note,
         )
 
     @classmethod

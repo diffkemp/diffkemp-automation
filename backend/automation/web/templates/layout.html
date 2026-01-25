@@ -112,7 +112,6 @@
         // to the one set before it was changed by the user.
         // This is just in case error occurs in the backend.
         const currentExpected = selectElement.dataset.currentExpected;
-        console.log(currentExpected);
         fetch(url, {
           method: "PUT",
           headers: {
@@ -126,7 +125,6 @@
           // Success, update the current expected result
           selectElement.dataset.currentExpected = expectedResult;
         }).catch(() => {
-          console.log("here");
           alert(
             "Error occurred while changing the expected result for function " +
             `'${selectElement.dataset.function}' from '${currentExpected}' to ` +

@@ -128,15 +128,6 @@ class ResultVersion(ResultBase):
             f"{self.old_tag}-{self.new_tag}"
         )
 
-    @classmethod
-    def from_yaml(cls, result: dict) -> "ResultVersion":
-        kwargs = super()._parse_yaml_base(result)
-        return cls(
-            old_tag=result["old_tag"],
-            new_tag=result["new_tag"],
-            **kwargs,
-        )
-
 
 class ResultsVersions():
     """Class for parsing results for versions."""

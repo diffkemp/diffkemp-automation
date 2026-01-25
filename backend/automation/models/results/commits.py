@@ -124,15 +124,6 @@ class ResultCommit(ResultBase[ProjectCommits]):
     def get_diff(self) -> str:
         return self.get_project().repo.git.diff(f"{self.commit}^!")
 
-    @classmethod
-    def from_yaml(cls, result: dict) -> "ResultCommit":
-        kwargs = super()._parse_yaml_base(result)
-        return cls(
-            commit=result["commit"],
-            all_diffs_matched=result["all_diffs_matched"],
-            **kwargs
-        )
-
 
 class ResultsCommits():
     """Class for parsing results for commits."""

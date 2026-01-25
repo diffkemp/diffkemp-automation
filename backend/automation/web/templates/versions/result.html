@@ -1,5 +1,5 @@
 {% extends "versions/layout.html" %}
-{% from "macros.html" import expected_fun_result_select %}
+{% from "macros.html" import expected_fun_result_select, result_note_text_area %}
 
 {% block subcontent %}
 
@@ -10,6 +10,18 @@
   <li><b>Old tag</b>: {{ result.old_tag }}</li>
   <li><b>New tag</b>: {{ result.new_tag }}</li>
 </ul>
+
+{{ result_note_text_area(
+     result.note,
+     url_for(
+       'api_bp.update_res_note_for_version',
+       config_name=result.config_name,
+       old_tag=result.old_tag,
+       new_tag=result.new_tag,
+       diffkemp_sha=result.diffkemp_sha,
+     )
+   )
+}}
 
 <h3>Compared functions</h3>
 

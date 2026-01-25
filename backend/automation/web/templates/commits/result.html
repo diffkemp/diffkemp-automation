@@ -1,5 +1,5 @@
 {% extends "commits/layout.html" %}
-{% from "macros.html" import expected_fun_result_select %}
+{% from "macros.html" import expected_fun_result_select, result_note_text_area %}
 
 {% block subcontent %}
 <h2>Results</h2>
@@ -10,6 +10,17 @@
   <li><b>Commit SHA</b>: {{ result.commit.SHA }}</li>
   <li><b>Commit summary</b>: {{ result.commit.summary }}</li>
 </ul>
+
+{{ result_note_text_area(
+     result.note,
+     url_for(
+       'api_bp.update_res_note_for_commit',
+       config_name=result.config_name,
+       commit=result.commit.SHA,
+       diffkemp_sha=result.diffkemp_sha,
+     )
+   )
+}}
 
 <h3>Compared functions</h3>
 

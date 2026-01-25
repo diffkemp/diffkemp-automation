@@ -25,3 +25,19 @@
   {% endif %}
 </div>
 {% endmacro %}
+
+{% macro result_note_text_area(note, api_url) %}
+<div>
+  <b>Note:</b>
+  <textarea class="form-control" {{ 'disabled' if 'user' not in session else ''}}
+            id="result-note"
+            data-api-url="{{ api_url }}"
+            data-current-note="{{ note }}"
+            rows="3"
+  >{{ note }}</textarea>
+  <button class="mt-1 btn btn-outline-primary {{ 'disabled' if 'user' not in session else ''}}"
+          onclick="updateNoteForResult()">
+    Update
+  </button>
+</div>
+{% endmacro %}

@@ -40,6 +40,7 @@ class ResultVersion(ResultBase):
         date: Optional[datetime] = None,
         functions: Optional[Dict[str, FunctionResult]] = None,
         comparison_status: ComparisonStatus = ComparisonStatus.SUCCESS,
+        note: str = "",
     ) -> None:
         """
         :param old_tag: Old tag of the project, that was compared.
@@ -61,6 +62,7 @@ class ResultVersion(ResultBase):
             date=date,
             functions=functions,
             comparison_status=comparison_status,
+            note=note,
         )
 
     @classmethod

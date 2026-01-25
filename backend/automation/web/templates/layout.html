@@ -135,6 +135,42 @@
           selectElement.value = currentExpected;
         });
       }
+
+      function updateNoteForResult() {
+        const noteTextArea = document.getElementById('result-note');
+        const nextNote = noteTextArea.value;
+        const url = noteTextArea.dataset.apiUrl;
+        const currentNote = noteTextArea.dataset.currentNote;
+        fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ "note": nextNote})
+        }).then((response) => {
+          if (!response.ok) {
+            throw new Error('Something went wrong');
+          }
+          // Success, update the current note
+          noteTextArea.dataset.currentNote = nextNote;
+        }).catch(() => {
+          alert(
+            "Error occurred while updating note for the result.\n" +
+            "Please try it again."
+          );
+        });
+      }
+
+      window.addEventListener('beforeunload', (e) => {
+        const noteTextArea = document.getElementById('result-note');
+        if (noteTextArea) {
+          const hasUnsavedNote = (noteTextArea.value !== noteTextArea.dataset.currentNote);
+          if (hasUnsavedNote) {
+            e.preventDefault();
+            e.returnValue = "";
+          }
+        }
+      });
     </script>
 
     {% block scripts %}{% endblock %}

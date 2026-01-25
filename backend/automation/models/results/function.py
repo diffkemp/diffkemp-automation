@@ -25,21 +25,3 @@ class FunctionResult:
 
     def set_expected_result(self, result: ExpectedResultType) -> None:
         self.expected_result = result
-
-    def to_yaml(self) -> dict:
-        return {
-            "name": self.name,
-            "diffkemp_result": str(self.diffkemp_result),
-            "expected_result": str(self.expected_result)
-        }
-
-    @classmethod
-    def from_yaml(cls, result: dict) -> "FunctionResult":
-        name = result["name"]
-        diffkemp_result = result["diffkemp_result"]
-        expected_result = result.get("expected_result", "unknown")
-        return cls(
-            name=name,
-            diffkemp_result=DiffKempResultType(diffkemp_result),
-            expected_result=ExpectedResultType(expected_result),
-        )

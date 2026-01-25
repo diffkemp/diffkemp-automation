@@ -8,7 +8,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Generic, Optional, TypeVar, cast
+from typing import Dict, Generic, Optional, TypeVar, cast
 
 from automation.models.projects.project import TProject
 from automation.models.projects.projects import ProjectsManager
@@ -120,31 +120,3 @@ class ResultBase(Generic[TProject], ABC):
         if not path.exists():
             return None
         return DiffKempOutYaml.from_file(path)
-
-    @staticmethod
-    def _parse_yaml_base(result: Dict[str, Any]) -> dict:
-        """
-        Parse common fields from YAML representation.
-
-        This helper method extracts base class fields. Subclasses should
-        call this and add their specific fields.
-
-        :param result: YAML result.
-        """
-        functions = {}
-        for fun_res in result["functions"]:
-            f = FunctionResult.from_yaml(fun_res)
-            functions[f.name] = f
-        return {
-            "name": result["name"],
-            "config_file_name": result["config_file_name"],
-            "diffkemp_sha": result["diffkemp_sha"],
-            "equal": int(result["equal"]),
-            "non_equal": int(result["non_equal"]),
-            "unknown": int(result["unknown"]),
-            "error": int(result["error"]),
-            "no_differing": int(result["no_differing"]),
-            "date": datetime.fromisoformat(result["date"]),
-            "functions": functions,
-            "comparison_status": ComparisonStatus(result["comparison_status"]),
-        }

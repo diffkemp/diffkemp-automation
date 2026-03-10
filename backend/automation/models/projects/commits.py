@@ -25,7 +25,7 @@ class ProjectCommits(BaseProject):
         self.commit_prefixes = config["commit-prefixes"]
 
     def pull_changes(self) -> None:
-        self.repo.remote().pull()
+        self.repo.remote().pull(rebase=True)
 
     def get_commits_to_compare(self, initial_comparison: int = 3) -> list[str]:
         """Returns SHA of commits that should be analyzed ordered from oldest

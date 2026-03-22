@@ -425,7 +425,10 @@ def compare_new() -> None:
         0: logging.ERROR,
         1: logging.INFO,
     }
-    logging.basicConfig(level=log_levels.get(args.verbose, logging.DEBUG))
+    logging.basicConfig(
+        level=log_levels.get(args.verbose, logging.DEBUG),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
     projects_tags = ProjectsManager.get_projects_tags_for_comparison(
         projects=args.projects,
